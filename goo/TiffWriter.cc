@@ -17,6 +17,10 @@
 
 #include <string.h>
 
+#ifdef _WIN32
+#include <io.h>
+#endif
+
 extern "C" {
 #include <tiffio.h>
 }
@@ -151,7 +155,13 @@ bool TiffWriter::init(FILE *openedFile, int width, int height, int hDPI, int vDP
     return false;
   }
 
+#ifdef _WIN32
+  //Convert C Library handle to Win32 Handle
+  priv->f = TIFFFdOpen(_get_osfhandle(fileno(openedFile)), "-", "w");
+#else
   priv->f = TIFFFdOpen(fileno(openedFile), "-", "w");
+#endif
+
 
   if (!priv->f) {
     return false;
